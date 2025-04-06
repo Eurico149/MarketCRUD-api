@@ -10,6 +10,10 @@ const user = new mongoose.Schema({
         type: String,
         required: true
     },
-})
+    mercadorias: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Mercadoria'
+    }]
+});
 
 export default mongoose.model('User', user)

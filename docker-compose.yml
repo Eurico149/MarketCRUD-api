@@ -30,6 +30,8 @@ services:
       - /app/node_modules
     environment:
       - MONGO_URI=mongodb://admin:admin123@mongo:27017/?authSource=admin
+      - JWT_REFRESH_SECRET=Nc/2vCmtlXcTNqY+ipCNp0DT6Gg
+      - JWT_ACCESS_SECRET=bKLIUw4cVhI6XyEJkhh030l3JaU
     depends_on:
       - mongo
       - redis
@@ -46,6 +48,8 @@ services:
       - /app/node_modules
     environment:
       - MONGO_URI=mongodb://admin:admin123@mongo:27017/?authSource=admin
+      - JWT_REFRESH_SECRET=Nc/2vCmtlXcTNqY+ipCNp0DT6Gg
+      - JWT_ACCESS_SECRET=bKLIUw4cVhI6XyEJkhh030l3JaU
     depends_on:
       - mongo
       - redis
