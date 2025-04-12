@@ -26,7 +26,7 @@ O docker Redis serve para gerenciar o cache do sistema, com o intuito de ter res
 ```
 # Clone o Repositorio
 git clone https://github.com/Eurico149/Armafa
-cd Armafa
+cd MarketCRUD
 
 # Inicie os dockers
 sudo docker compose up --build
@@ -46,7 +46,7 @@ MarketCRUD/
 ├── .env
 ├── .gitignore
 ├── docker-compose.yml
-├── Dcokerfile
+├── Dockerfile
 ├── LICENSE
 ├── index.js
 ├── package.json
