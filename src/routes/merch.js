@@ -5,17 +5,11 @@ import Mercadoria from "../models/mercadoria.js";
 
 
 async function validateUser(id, username){
-    const user = await User.findById(id);
-    if (user && user.username === username){
-        return user;
-    }
+    return User.findOne({_id: id, username});
 }
 
 async function validateMercadoria(idUser, idMerch){
-    const mercadoria = await Mercadoria.findById(idMerch);
-    if (mercadoria && mercadoria.usuario.toString() === idUser) {
-        return mercadoria
-    }
+    return Mercadoria.findOne({_id: idMerch, usuario: idUser});
 }
 
 const router = express.Router();
@@ -153,8 +147,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
         }
 
         const mercadoria = await validateMercadoria(userId, id);
+
         if (!mercadoria){
-            return res.status(401).json({message: 'Mercadoria nao existe'})
+            return res.status(401).json({message: 'Mercadoria nao existe'});
         }
 
         return res.status(200).json(mercadoria);
