@@ -13,16 +13,16 @@ router.post('/register', async (req, res) => {
 
         const user = await User.findOne({username});
         if (user) {
-            return res.status(400).json({message: 'username ja esta em uso'});
+            return res.status(400).json({message: 'Username ja Uso'});
         }
 
         const hashSenha = await bcrypt.hashSync(password, 12);
         const newUser = new User({username, password: hashSenha});
 
         await newUser.save();
-        return res.status(201).json({message: 'usuario criado com sucesso'});
+        return res.status(201).json({message: 'Usuario Criado com Sucesso'});
     } catch (error) {
-        return res.status(400).json({message: 'Error ao registrar usuario'});
+        return res.status(400).json({message: 'Error ao Registrar Usuario'});
     }
 });
 
@@ -43,11 +43,20 @@ router.post('/login', async (req, res) => {
     const refreshToken = generateRefreshToken({id: user.id});
 
     res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        }).json({accessToken});
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 15 * 24 * 60 * 60 * 1000
+    })
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 10 * 60 * 1000
+    })
+
+    res.status(200).json({message: 'Usuario Logado'})
 });
 
 router.post('/refresh', async (req, res) => {

@@ -2,14 +2,63 @@ import authMiddleware from './../token/authMidToken.js';
 import express from "express";
 import User from "./../models/user.js";
 import Mercadoria from "../models/mercadoria.js";
+import redis from "../conn/connectionCache.js";
 
 
-async function validateUser(id, username){
-    return User.findOne({_id: id, username});
+async function getUser(_id, username){
+    let user;
+
+    try {
+        user = await redis.get(`user:${_id};${username}`);
+        if (user){
+            user = JSON.parse(user);
+            user = User.hydrate(user);
+            console.log(`\nREDIS HIT USER -> ${_id}, ${username}\n`)
+        }
+    } catch (err) {
+        console.log(`\nERROR REDIS USER - ${err}\n`);
+    }
+
+    if (!user){
+        console.log(`\nREDIS MISS USER -> ${_id}, ${username}\n`)
+        try {
+            user = await User.findOne({_id, username});
+            if (user)
+                redis.set(`user:${_id};${username}`, JSON.stringify(user.toObject()));
+        } catch (err) {
+            console.error(`\nMONGODB MISS USER -> ${_id},${username}\n`);
+        }
+    }
+
+    return user;
 }
 
-async function validateMercadoria(idUser, idMerch){
-    return Mercadoria.findOne({_id: idMerch, usuario: idUser});
+async function getMercadoria(idMerch, idUser){
+    let merch;
+
+    try {
+        merch = await redis.get(`merch:${idMerch};${idUser}`);
+        if (merch){
+            merch = JSON.parse(merch);
+            merch = Mercadoria.hydrate(merch);
+            console.log(`\nREDIS HIT MERCH -> ${idMerch}, ${idUser}\n`)
+        }
+    } catch (err) {
+        console.error(`\nERROR REDIS MERCH - ${err}\n`);
+    }
+
+    if (!merch) {
+        console.log(`\nREDIS MISS MERCH -> ${idMerch}, ${idUser}\n`)
+        try {
+            merch = await Mercadoria.findOne({_id: idMerch, usuario: idUser});
+            if (merch)
+                redis.set(`merch:${idMerch};${idUser}`, JSON.stringify(merch.toObject()));
+        } catch (err) {
+            console.error(`\nMONGODB MISS MERCH -> ${idMerch},${idUser}\n`, err);
+        }
+    }
+
+    return merch;
 }
 
 const router = express.Router();
@@ -18,7 +67,7 @@ router.post("/", authMiddleware, async (req, res) => {
     const {id, username} = req.user;
 
     try {
-        const user = await validateUser(id, username);
+        const user = await getUser(id, username);
         if (!user){
             return res.status(401).json({message: 'Usuario nao existe'})
         }
@@ -34,9 +83,9 @@ router.post("/", authMiddleware, async (req, res) => {
 
         user.mercadorias.push(mercadoria);
         await user.save()
-        return res.status(201).json(mercadoria);
+        res.status(201).json(mercadoria);
     } catch (error) {
-        return res.status(401).json({message: 'Erro ao criar mercadoria'});
+        res.status(401).json({message: 'Erro ao criar mercadoria'});
     }
 });
 
@@ -44,7 +93,7 @@ router.post("/list", authMiddleware, async (req, res) => {
     const {id, username} = req.user;
 
     try {
-        const user = await validateUser(id, username);
+        const user = await getUser(id, username);
         if (!user){
             return res.status(401).json({message: 'Usuario nao existe'})
         }
@@ -65,7 +114,7 @@ router.post("/list", authMiddleware, async (req, res) => {
         res.status(201).json(resultado);
 
     } catch (error) {
-        return res.status(401).json({message: 'Erro ao criar mercadoria'});
+        res.status(401).json({message: 'Erro ao criar mercadoria'});
     }
 });
 
@@ -73,20 +122,28 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     const {id, username} = req.user;
 
     try {
-        const user = await validateUser(id, username);
+        const user = await getUser(id, username);
         if (!user){
             return res.status(401).json({message: 'Usuario nao existe'})
         }
 
-        const idmerch = req.params.id;
-        const mercadoria = await validateMercadoria(id, idmerch);
+        const idMerch = req.params.id;
+        const mercadoria = await getMercadoria(idMerch, id);
         if (!mercadoria){
             return res.status(401).json({message: 'Mercadoria nao existe'});
         }
 
         await user.updateOne({ $pull: { mercadorias: mercadoria._id } });
         await mercadoria.deleteOne();
-        return res.status(200).json({message: 'Mercadoria deletada'});
+
+        try {
+            redis.del(`merch:${idMerch};${id}`);
+            redis.set(`user:${id};${username}`, JSON.stringify(user.toObject()));
+        } catch {
+            console.error(`\nERROR REDIS DELETE MERCH - ${idMerch}, ${id}\n`)
+        }
+
+        res.status(200).json({message: 'Mercadoria deletada'});
     } catch (error) {
         res.status(401).json({message: 'Erro ao deletar mercadoria'});
     }
@@ -96,13 +153,13 @@ router.put("/:id", authMiddleware, async (req, res) => {
     const {id: idUser, username} = req.user;
 
     try {
-        const user = await validateUser(idUser, username);
+        const user = await getUser(idUser, username);
         if (!user){
             return res.status(401).json({message: 'Usuario nao existe'})
         }
 
         const id = req.params.id;
-        const mercadoria = await validateMercadoria(idUser, id);
+        const mercadoria = await getMercadoria(id, idUser);
         if (!mercadoria){
             return res.status(401).json({message: 'Mercadoria nao existe'})
         }
@@ -112,10 +169,16 @@ router.put("/:id", authMiddleware, async (req, res) => {
         mercadoria.valor = valor;
         mercadoria.descricao = descricao;
         await mercadoria.save()
-        res.status(200).json({mercadoria});
 
+        try {
+            redis.set(`merch:${id};${idUser}`, JSON.stringify(mercadoria.toObject()));
+        } catch (error) {
+            console.error(`\nERROR REDIS UPDATE MERCH - ${id}, ${idUser}\n`)
+        }
+
+        res.status(200).json({mercadoria});
     } catch (error){
-        return res.status(401).json({message: 'Erro ao modificar mercadoria'});
+        res.status(401).json({message: 'Erro ao modificar mercadoria'});
     }
 });
 
@@ -123,16 +186,16 @@ router.get('/', authMiddleware, async (req, res) => {
     const {id, username} = req.user;
 
     try {
-        const user = await validateUser(id, username);
+        const user = await getUser(id, username);
         if (!user){
             return res.status(401).json({message: 'Usuario nao existe'})
         }
 
         const mercadorias = await Mercadoria.find({usuario: id});
 
-        return res.status(200).json(mercadorias);
+        res.status(200).json(mercadorias);
     } catch (error) {
-        return res.status(401).json({message: 'Erro ao pegar mercadoria'});
+        res.status(401).json({message: 'Erro ao pegar mercadoria'});
     }
 });
 
@@ -141,18 +204,18 @@ router.get('/:id', authMiddleware, async (req, res) => {
     const {id} = req.params;
 
     try {
-        const user = await validateUser(userId, username);
+        const user = await getUser(userId, username);
         if (!user){
             return res.status(401).json({message: 'Usuario nao existe'})
         }
 
-        const mercadoria = await validateMercadoria(userId, id);
+        const mercadoria = await getMercadoria(id, userId);
 
         if (!mercadoria){
             return res.status(401).json({message: 'Mercadoria nao existe'});
         }
 
-        return res.status(200).json(mercadoria);
+        res.status(200).json(mercadoria);
     } catch (error){
         res.status(401).json({message: 'Erro ao enviar mercadoria'});
     }

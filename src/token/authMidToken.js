@@ -1,12 +1,11 @@
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
+    const token = req.cookies.accessToken;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Token não fornecido' });
+    if (!token) {
+        return res.status(401).json({message: 'Token nao fornecido'});
     }
-    const token = authHeader.split(' ')[1];
 
     try {
         req.user = jwt.verify(token, process.env.JWT_ACCESS_SECRET || 'access_key');

@@ -11,10 +11,6 @@ export function generateRefreshToken(payload){
     return jwt.sign(payload, JWT_REFRESH_SECRET, {expiresIn: '15d'});
 }
 
-export function validateAccessToken(token){
-    return jwt.verify(token, JWT_ACCESS_SECRET);
-}
-
 export function validateRefreshToken(token){
     return jwt.verify(token, JWT_REFRESH_SECRET);
 }
