@@ -28,7 +28,7 @@ git clone https://github.com/Eurico149/MarketCRUD
 cd MarketCRUD
 
 # Inicie os dockers
-sudo docker compose up --scale app=2
+sudo docker compose up --build --scale app=2
 ```
 <hr>
 
@@ -47,6 +47,7 @@ MarketCRUD/
 ├── docker-compose.yml
 ├── Dockerfile
 ├── index.js
+├── Insomnia_workspace.json
 ├── package.json
 ├── package-lock.json
 └── README.md
