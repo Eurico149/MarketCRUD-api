@@ -30,13 +30,14 @@ cd MarketCRUD
 # Inicie os dockers
 sudo docker compose up --build --scale app=2
 ```
+É possivel tambem testar o projeto utilizando o Insomnia, que ja contem as rotas e exemplos de uso, apenas 
+importando o arquivo `Insomnia_workspace.json` no Insomnia.
 <hr>
 
 ## Estrutura 📁
 ```
 MarketCRUD/
 ├─── nginx/
-├─── testeNginx/
 ├─── src/
 │   ├─── conn/
 │   ├─── models/
