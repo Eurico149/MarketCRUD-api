@@ -1,6 +1,5 @@
 # MarketCRUD
 Um simples CRUD de mercadorias e usuarios, com implementacao voltada para apredizado e portifolio.
-<hr>
 
 ## Tecnologias 🛠
 <ul>
@@ -11,7 +10,6 @@ Um simples CRUD de mercadorias e usuarios, com implementacao voltada para apredi
     <li>Nginx</li>
     <li>Redis</li>
 </ul>
-<hr>
 
 ## Funcionalidades 📌
 Em resumo MarketCRUD é uma API feita em NodeJs e Express que gerencia Usuarios e suas Mercadorias.
@@ -19,7 +17,6 @@ Esse projeto tem forte uso de Docker, contendo Dockers Nginx, Mongo, Redis
 e o da propria aplicacao. <br>
 O Nginx foi utilizado como proxy reverso para balancear a carga das possiveis instancias da API.
 O docker Redis serve para gerenciar o cache do sistema, com o intuito de ter resultados de consultas mais rapido.
-<hr>
 
 ## Como Rodar 🚀
 ```
@@ -30,9 +27,10 @@ cd MarketCRUD
 # Inicie os dockers
 docker compose up --build --scale app=2
 ```
-É possivel tambem testar o projeto utilizando o Insomnia, que ja contem as rotas e exemplos de uso, apenas 
-importando o arquivo `Insomnia_workspace.json` no Insomnia.
-<hr>
+<p>Certifique-se de criar um arquivo `.env` na raiz do projeto, com as variaveis de ambiente necessarias.</p>
+
+<p>É possivel tambem testar o projeto utilizando o Insomnia, que ja contem as rotas e exemplos de uso, apenas 
+importando o arquivo `Insomnia_workspace.json` no Insomnia.</p>
 
 ## Estrutura 📁
 ```

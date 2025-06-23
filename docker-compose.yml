@@ -39,6 +39,7 @@ services:
       - REDIS_PORT=${REDIS_PORT:-6379}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-Nc/2vCmtlXcTNqY+ipCNp0DT6Gg}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-bKLIUw4cVhI6XyEJkhh030l3JaU}
+      - URL_FRONTEND=${URL_FRONTEND:-http://localhost:8082}
     depends_on:
       - mongo
       - redis
