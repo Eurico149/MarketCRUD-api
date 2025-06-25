@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import User from './../models/user.js';
 import {generateRefreshToken, generateAccessToken, validateRefreshToken} from './../token/tokenService.js';
+import authMiddleware from "../token/authMidToken.js";
 
 
 const router = express.Router();
@@ -16,7 +17,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({message: 'Username ja Uso'});
         }
 
-        const hashSenha = await bcrypt.hashSync(password, 12);
+        const hashSenha = await bcrypt.hashSync(password, 10);
         const newUser = new User({username, password: hashSenha});
 
         await newUser.save();
@@ -78,5 +79,20 @@ router.post('/refresh', async (req, res) => {
         return res.status(400).json({message: 'Token Invalido'});
     }
 });
+
+router.post('/logout', authMiddleware, async (req, res) => {
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+    });
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+    });
+
+    return res.status(200).json({ message: 'Logout realizado com sucesso' });
+})
 
 export default router;
