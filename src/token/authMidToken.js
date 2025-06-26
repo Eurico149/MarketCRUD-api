@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
         req.user = jwt.verify(token, process.env.JWT_ACCESS_SECRET || 'access_key');
         next();
     } catch (err) {
-        return res.status(403).json({message: 'Token invalido'});
+        res.status(403).json({message: 'Token invalido'});
     }
 };
 

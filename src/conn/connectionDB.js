@@ -12,10 +12,9 @@ const connDB = async () => {
             useUnifiedTopology:true,
             authSource: process.env.AUTH_SOURCE || 'admin'
         })
-        await mongoose.connection.dropDatabase()
         console.log('Mongo Conectado');
     } catch (erro){
-        console.log('Mongo Nao Conectado');
+        console.error('Erro ao conectar ao MongoDB:', erro);
     }
 };
 

@@ -14,7 +14,7 @@ router.post('/register', async (req, res) => {
 
         const user = await User.findOne({username});
         if (user) {
-            return res.status(400).json({message: 'Username ja Uso'});
+            return res.status(400).json({message: 'Username ja em Uso'});
         }
 
         const hashSenha = await bcrypt.hashSync(password, 10);
@@ -23,6 +23,7 @@ router.post('/register', async (req, res) => {
         await newUser.save();
         return res.status(201).json({message: 'Usuario Criado com Sucesso'});
     } catch (error) {
+        console.error('Erro ao registrar usuario:', error);
         return res.status(400).json({message: 'Error ao Registrar Usuario'});
     }
 });
@@ -30,34 +31,39 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const {username, password} = req.body;
 
-    const user = await User.findOne({username});
-    if (!user){
-        return res.status(400).json({message: 'Usuario ou Senha Invalido'});
+    try {
+        const user = await User.findOne({username});
+        if (!user) {
+            return res.status(400).json({message: 'Usuario ou Senha Invalido'});
+        }
+
+        const pass = await bcrypt.compare(password, user.password);
+        if (!pass) {
+            return res.status(400).json({message: 'Usuario ou Senha Invalido'});
+        }
+
+        const accessToken = generateAccessToken({id: user.id, username: user.username});
+        const refreshToken = generateRefreshToken({id: user.id});
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 15 * 24 * 60 * 60 * 1000
+        })
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 10 * 60 * 1000
+        })
+
+        res.status(200).json({message: 'Usuario Logado'})
+    } catch (error) {
+        console.error('Erro ao logar usuario:', error);
+        res.status(500)
     }
-
-    const pass = await bcrypt.compare(password, user.password);
-    if (!pass){
-        return res.status(400).json({message: 'Usuario ou Senha Invalido'});
-    }
-
-    const accessToken = generateAccessToken({id: user.id, username: user.username});
-    const refreshToken = generateRefreshToken({id: user.id});
-
-    res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 15 * 24 * 60 * 60 * 1000
-    })
-
-    res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 10 * 60 * 1000
-    })
-
-    res.status(200).json({message: 'Usuario Logado'})
 });
 
 router.post('/refresh', async (req, res) => {
@@ -76,6 +82,7 @@ router.post('/refresh', async (req, res) => {
         const accessToken = generateAccessToken({id: user.id, username: user.username});
         return res.status(201).json({accessToken});
     } catch (error) {
+        console.error('Erro ao refresh token:', error);
         return res.status(400).json({message: 'Token Invalido'});
     }
 });
