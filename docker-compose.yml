@@ -1,7 +1,7 @@
 services:
 
   mongo:
-    image: mongo:latest
+    image: mongo:6.0
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
@@ -10,7 +10,7 @@ services:
       - mongo_data:/data/db
 
   redis:
-    image: redis:latest
+    image: redis:alpine
     restart: unless-stopped
     command: redis-server --maxmemory 200mb --maxmemory-policy allkeys-lru
 
@@ -21,8 +21,6 @@ services:
       - "3000:3000"
     environment:
       - MONGO_URI=${MONGO_URI:-mongodb://admin:admin123@mongo:27017/?authSource=admin}
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-Nc/2vCmtlXcTNqY+ipCNp0DT6Gg}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-bKLIUw4cVhI6XyEJkhh030l3JaU}
       - URL_FRONTEND=${URL_FRONTEND:-http://localhost:8080}
