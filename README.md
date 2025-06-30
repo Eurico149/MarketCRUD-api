@@ -1,6 +1,10 @@
 # MarketCRUD
 Um simples CRUD de mercadorias e usuarios, com implementacao voltada para apredizado e portifolio.
 
+## Deploy
+O projeto fullstack esta hospedado no meu homelab, e pode ser acessado atraves do seguinte link: [MarketCRUD](https://mc.euricopersonal.info/) <br>
+Para mais informacoes sobre o frontend e como rodar fullstack localmente, acesse o repositorio: [MarketCRUD-front](https://github.com/Eurico149/MarketCRUD-front.git)
+
 ## Tecnologias 🛠
 <ul>
     <li>NodeJS</li>
