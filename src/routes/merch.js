@@ -149,18 +149,15 @@ router.put("/:id", authMiddleware, async (req, res) => {
         mercadoria.nome = nome;
         mercadoria.valor = valor;
         mercadoria.descricao = descricao;
-        await mercadoria.save()
 
-        try {
-            redis.set(`merch:${id};${idUser}`, JSON.stringify(mercadoria.toObject()));
-        } catch (error) {
-            console.error('error ao atualizar cache de mercadoria');
-        }
+        await mercadoria.save();
+
+        redis.set(`merch:${id};${idUser}`, JSON.stringify(mercadoria.toObject()));
 
         res.status(200).json({mercadoria});
     } catch (error){
         console.error('erro ao modificar mercadoria:', error);
-        res.status(401).json({message: 'Erro ao modificar mercadoria'});
+        res.status(400).json({message: 'Nome ja em uso'});
     }
 });
 

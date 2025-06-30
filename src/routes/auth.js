@@ -80,7 +80,15 @@ router.post('/refresh', async (req, res) => {
         }
 
         const accessToken = generateAccessToken({id: user.id, username: user.username});
-        return res.status(201).json({accessToken});
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 10 * 60 * 1000
+        });
+
+        res.status(200).json({message: 'Token atualizado'});
     } catch (error) {
         console.error('Erro ao refresh token:', error);
         return res.status(400).json({message: 'Token Invalido'});
