@@ -48,7 +48,6 @@ docker compose down -v
 ## Estrutura 📁
 ```
 MarketCRUD/
-├─── nginx/
 ├─── src/
 │   ├─── conn/
 │   ├─── models/
@@ -60,6 +59,7 @@ MarketCRUD/
 ├── Dockerfile
 ├── index.js
 ├── Insomnia_workspace.json
+├── nginx.conf
 ├── package.json
 ├── package-lock.json
 └── README.md
