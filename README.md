@@ -23,18 +23,27 @@ O Nginx foi utilizado como proxy reverso para balancear a carga das possiveis in
 O docker Redis serve para gerenciar o cache do sistema, com o intuito de ter resultados de consultas mais rapido.
 
 ## Como Rodar 🚀
-```
+``` sh
 # Clone o Repositorio
-git clone https://github.com/Eurico149/MarketCRUD
-cd MarketCRUD
+git clone https://github.com/Eurico149/MarketCRUD-api.git
+cd MarketCRUD-api
 
 # Inicie os dockers
-docker compose up --build --scale app=2
-```
-<p>Certifique-se de criar um arquivo `.env` na raiz do projeto, com as variaveis de ambiente necessarias.</p>
+docker compose up -d
 
-<p>É possivel tambem testar o projeto utilizando o Insomnia, que ja contem as rotas e exemplos de uso, apenas 
-importando o arquivo `Insomnia_workspace.json` no Insomnia.</p>
+echo -e "\nFull website running on: http://localhost:8080 \n"
+echo -e "API running on: http://localhost:8080/api/ \n"
+```
+
+Certifique-se de criar um arquivo `.env` na raiz do projeto, com as variaveis de ambiente necessarias.
+
+É possivel tambem testar o projeto utilizando o Insomnia, que ja contem as rotas e exemplos de uso, apenas 
+importando o arquivo `Insomnia_workspace.json` no Insomnia.
+
+Para parar os containers e remover os volumes, basta rodar na raiz do projeto o seguinte comando:
+``` sh
+docker compose down -v
+```
 
 ## Estrutura 📁
 ```
