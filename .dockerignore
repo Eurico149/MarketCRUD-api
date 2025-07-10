@@ -1,0 +1,6 @@
+README.md
+docker-compose.yml
+nginx.conf
+.gitignore
+.dockerignore
+Insomnia_workspace.json
